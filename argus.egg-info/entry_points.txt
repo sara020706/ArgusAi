@@ -1,2 +1,0 @@
-[console_scripts]
-argus-serve = argus.api.server:run

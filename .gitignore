@@ -1,0 +1,43 @@
+# Byte-compiled / optimized / cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Distribution / packaging / build
+build/
+dist/
+*.egg-info/
+*.egg
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Test / coverage
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# Argus runtime artifacts
+argus.db
+*.sqlite
+*.sqlite3
+argus_model.pkl
+*.pkl
+
+# Local verification / scratch scripts
+_verify*.py
+_smoke.py
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
