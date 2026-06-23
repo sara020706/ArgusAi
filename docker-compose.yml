@@ -1,0 +1,43 @@
+version: "3.9"
+
+services:
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: argus-api
+    restart: unless-stopped
+    ports:
+      - "${ARGUS_PORT:-8000}:8000"
+    volumes:
+      - argus-data:/app/data
+    environment:
+      - ARGUS_DB_PATH=/app/data/argus.db
+      - ARGUS_API_KEY=${ARGUS_API_KEY:-}
+      - ABUSEIPDB_KEY=${ABUSEIPDB_KEY:-}
+      - ARGUS_ENABLE_ML=${ARGUS_ENABLE_ML:-false}
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile.dashboard
+    container_name: argus-dashboard
+    restart: unless-stopped
+    ports:
+      - "${DASHBOARD_PORT:-8501}:8501"
+    environment:
+      - ARGUS_API_URL=http://api:8000
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  argus-data:
+    driver: local

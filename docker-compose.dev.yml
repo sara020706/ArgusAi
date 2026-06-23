@@ -1,0 +1,38 @@
+version: "3.9"
+
+services:
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: argus-api-dev
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - argus-dev-data:/app/data
+    environment:
+      - ARGUS_DB_PATH=/app/data/argus.db
+      - ARGUS_ENABLE_ML=false
+      - PYTHONUNBUFFERED=1
+    command: >
+      python -m uvicorn argus.api.server:create_app
+      --host 0.0.0.0 --port 8000 --reload --factory
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile.dashboard
+    container_name: argus-dashboard-dev
+    ports:
+      - "8501:8501"
+    volumes:
+      - .:/app
+    environment:
+      - ARGUS_API_URL=http://api:8000
+    depends_on:
+      - api
+
+volumes:
+  argus-dev-data:

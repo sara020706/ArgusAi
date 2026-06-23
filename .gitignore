@@ -36,6 +36,9 @@ argus_model.pkl
 _verify*.py
 _smoke.py
 
+# Streamlit session / cache state (not the config.toml — that's intentional)
+.streamlit/secrets.toml
+
 # Editor / OS
 .vscode/
 .idea/
