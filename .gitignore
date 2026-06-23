@@ -43,6 +43,10 @@ _smoke.py
 website/node_modules/
 website/dist/
 
+# Web test app (React / Vite)
+web-test/node_modules/
+web-test/dist/
+
 # Editor / OS
 .vscode/
 .idea/
