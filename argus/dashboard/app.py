@@ -17,25 +17,46 @@ from argus.dashboard.components.metric_cards import (
     render_metric_row,
     render_system_status,
 )
+from argus.dashboard.styles import inject_global_css, render_page_header
 
 st.set_page_config(
-    page_title="Argus — Threat Detection",
-    page_icon="👁️",
+    page_title="Argus AI",
+    page_icon="⬡",
     layout="wide",
     initial_sidebar_state="expanded",
 )
+
+inject_global_css()
 
 # ── Sidebar ──────────────────────────────────────────────────────────────────
 
 with st.sidebar:
     st.markdown(
-        "<h1 style='font-size:1.8em; margin-bottom:0'>👁️ ARGUS</h1>"
-        "<p style='color:#94a3b8; margin-top:0; font-size:0.9em'>"
-        "Insider Threat Detection</p>",
+        "<h1 style='font-size:1.6rem;font-weight:900;color:#f1f5f9;"
+        "letter-spacing:-1px;margin-bottom:0;font-family:monospace'>ARGUS AI</h1>"
+        "<p style='color:#475569;margin-top:2px;font-size:0.72rem;"
+        "text-transform:uppercase;letter-spacing:0.12em'>Threat Detection</p>",
         unsafe_allow_html=True,
     )
-    st.divider()
 
+    st.markdown(
+        '<hr style="border:none;border-top:1px solid #1e293b;margin:12px 0"/>',
+        unsafe_allow_html=True,
+    )
+
+    # System status dots
+    try:
+        health = get_health()
+    except Exception:
+        health = {"status": "unreachable"}
+    render_system_status(health)
+
+    st.markdown(
+        '<hr style="border:none;border-top:1px solid #1e293b;margin:12px 0"/>',
+        unsafe_allow_html=True,
+    )
+
+    # API URL config
     api_url = st.text_input(
         "API URL",
         value=os.environ.get("ARGUS_API_URL", "http://localhost:8000"),
@@ -43,16 +64,50 @@ with st.sidebar:
     )
     os.environ["ARGUS_API_URL"] = api_url
 
+    st.markdown(
+        '<hr style="border:none;border-top:1px solid #1e293b;margin:12px 0"/>',
+        unsafe_allow_html=True,
+    )
+
+    # Auto-refresh controls
     auto_refresh = st.toggle("Auto-refresh", value=False)
     refresh_interval = 30
     if auto_refresh:
         refresh_interval = st.slider(
-            "Refresh interval (s)", min_value=10, max_value=60, value=30, step=5
+            "Interval (s)", min_value=10, max_value=60, value=30, step=5
         )
 
-    st.divider()
-    health = get_health()
-    render_system_status(health)
+    st.markdown(
+        '<hr style="border:none;border-top:1px solid #1e293b;margin:12px 0"/>',
+        unsafe_allow_html=True,
+    )
+
+    # Navigation links
+    st.markdown(
+        '<p style="font-size:0.6rem;font-weight:700;color:#334155;'
+        'text-transform:uppercase;letter-spacing:0.12em;margin-bottom:8px">Navigation</p>',
+        unsafe_allow_html=True,
+    )
+    nav_links = [
+        ("Overview",       "pages/1_Overview"),
+        ("Live Alerts",    "pages/2_Live_Alerts"),
+        ("User Profiles",  "pages/3_User_Profiles"),
+        ("Threat Map",     "pages/4_Threat_Map"),
+    ]
+    for label, _ in nav_links:
+        st.markdown(
+            f'<div style="padding:4px 0;font-size:0.78rem;color:#64748b">'
+            f'&#9656; {label}</div>',
+            unsafe_allow_html=True,
+        )
+
+    # Version footer pinned at bottom
+    st.markdown(
+        '<div style="position:fixed;bottom:16px;left:0;width:220px;'
+        'text-align:center;font-size:0.6rem;color:#1e293b;font-family:monospace">'
+        'ARGUS v0.1.0 · argus-ai</div>',
+        unsafe_allow_html=True,
+    )
 
 # ── Auto-refresh ─────────────────────────────────────────────────────────────
 
@@ -63,25 +118,21 @@ if auto_refresh:
     except ImportError:
         st.sidebar.warning(
             "Install `streamlit-autorefresh` to enable auto-refresh.",
-            icon="⚠️",
         )
 
 # ── Home page ─────────────────────────────────────────────────────────────────
 
-st.markdown(
-    "<h2 style='margin-bottom:4px'>Security Operations Centre</h2>",
-    unsafe_allow_html=True,
-)
-st.caption(
-    "Argus monitors user behaviour and detects insider threats in real time. "
-    "Use the sidebar to navigate between views."
-)
-
-st.divider()
+render_page_header("Security Operations Centre", "argus insider threat detection · live")
 
 # Pull live summary data
-stats = get_alert_stats()
-metrics_data = get_metrics()
+try:
+    stats = get_alert_stats()
+except Exception:
+    stats = {}
+try:
+    metrics_data = get_metrics()
+except Exception:
+    metrics_data = {}
 
 total_events_today = stats.get("total_events_today", 0)
 alerts_today = stats.get("alerts_today", 0)
@@ -89,11 +140,13 @@ critical_today = stats.get("critical_count", 0)
 users_tracked = metrics_data.get("total_users_tracked", 0)
 
 if health.get("status") == "unreachable":
-    st.warning(
-        "⚠️ Cannot reach the Argus API at **{}**. "
-        "Ensure the server is running (`argus-serve`) and the URL above is correct.".format(
-            api_url
-        ),
+    st.markdown(
+        '<div style="background:#1c0a0a;border:1px solid #991b1b;border-radius:8px;'
+        'padding:12px 16px;color:#f87171;font-size:0.82rem;margin-bottom:16px">'
+        f'Cannot reach the Argus API at <code>{api_url}</code>. '
+        'Ensure the server is running (<code>argus-serve</code>) and the URL above is correct.'
+        '</div>',
+        unsafe_allow_html=True,
     )
 else:
     render_metric_row(

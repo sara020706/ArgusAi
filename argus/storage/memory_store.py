@@ -19,9 +19,10 @@ class MemoryStore(ArgusStore):
     """A non-persistent :class:`ArgusStore` backed by in-process dicts."""
 
     def __init__(self):
-        """Initialize empty profile and event containers."""
+        """Initialize empty profile, event, and DNA containers."""
         self._profiles: dict[str, dict] = {}
         self._events: list[dict] = []
+        self._dna: dict[str, dict] = {}
 
     def get_profile(self, user_id: str) -> dict | None:
         """Return a deep copy of the user's profile, or None. See base class."""
@@ -97,3 +98,12 @@ class MemoryStore(ArgusStore):
             "alerts_today": alerts_today,
             "high_risk_users": high_risk_users,
         }
+
+    def get_dna(self, user_id: str) -> dict | None:
+        """Return a deep copy of the user's DNA dict, or None. See base class."""
+        dna = self._dna.get(user_id)
+        return copy.deepcopy(dna) if dna is not None else None
+
+    def save_dna(self, user_id: str, dna: dict) -> None:
+        """Store a deep copy of the DNA dict under ``user_id``. See base class."""
+        self._dna[user_id] = copy.deepcopy(dna)

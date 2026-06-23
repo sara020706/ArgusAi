@@ -164,3 +164,37 @@ def get_all_users() -> list[str]:
     alerts = get_alerts(limit=200, min_risk_level="LOW")
     seen = {a["user_id"] for a in alerts if isinstance(a, dict) and "user_id" in a}
     return sorted(seen)
+
+
+def get_user_dna(user_id: str) -> dict | None:
+    """Fetch a user's behavioral DNA fingerprint.
+
+    Args:
+        user_id: The user to look up.
+
+    Returns:
+        The DNA dict from ``GET /v1/users/{id}/dna``, or ``None`` if not found
+        or on failure.
+    """
+    result = _get(f"/v1/users/{user_id}/dna")
+    return result if isinstance(result, dict) else None
+
+
+def get_dna_summary() -> list[dict]:
+    """Fetch the cross-user DNA summary, most-drifted first.
+
+    Returns:
+        List of summary dicts from ``GET /v1/dna/summary``, or ``[]`` on failure.
+    """
+    result = _get("/v1/dna/summary")
+    return result if isinstance(result, list) else []
+
+
+def get_dna_alerts() -> list[dict]:
+    """Fetch users with behavioral drift at medium severity or above.
+
+    Returns:
+        List of anomaly dicts from ``GET /v1/dna/alerts``, or ``[]`` on failure.
+    """
+    result = _get("/v1/dna/alerts")
+    return result if isinstance(result, list) else []

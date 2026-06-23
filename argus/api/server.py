@@ -18,7 +18,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from argus.api import dependencies
 from argus.api.dependencies import initialize_engine
 from argus.api.middleware import APIKeyMiddleware
-from argus.api.routes import alerts, events, health, users
+from argus.api.routes import alerts, dna, events, health, users
 
 
 def create_app(
@@ -97,6 +97,7 @@ def create_app(
     app.include_router(events.router)
     app.include_router(alerts.router)
     app.include_router(users.router)
+    app.include_router(dna.router)
 
     return app
 
