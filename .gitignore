@@ -52,3 +52,6 @@ web-test/dist/
 .idea/
 .DS_Store
 Thumbs.db
+
+#claude files 
+*.claude
