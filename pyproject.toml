@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "argus"
+version = "0.1.0"
+description = "AI-powered insider threat and anomalous user behavior detection"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+ml = ["scikit-learn>=1.3"]
+api = ["fastapi>=0.110", "uvicorn>=0.29"]
+dev = ["pytest", "pytest-cov", "scikit-learn>=1.3"]
+
+[project.scripts]
+argus-serve = "argus.api.server:run"
+
+[tool.setuptools.packages.find]
+include = ["argus*"]
