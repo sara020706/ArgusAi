@@ -36,8 +36,24 @@ argus_model.pkl
 _verify*.py
 _smoke.py
 
+# Streamlit session / cache state (not the config.toml — that's intentional)
+.streamlit/secrets.toml
+
+# Website (React / Vite)
+website/node_modules/
+website/dist/
+
+# Web test app (React / Vite)
+web-test/node_modules/
+web-test/dist/
+
 # Editor / OS
 .vscode/
 .idea/
 .DS_Store
 Thumbs.db
+
+#claude files 
+*.claude
+*.claude/
+*.claude.*

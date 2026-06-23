@@ -107,3 +107,24 @@ class ArgusStore(ABC):
                     "high_risk_users": list[str]
                 }
         """
+
+    @abstractmethod
+    def get_dna(self, user_id: str) -> dict | None:
+        """Retrieve the stored BehavioralDNA dict for a user.
+
+        Args:
+            user_id: The user whose behavioral DNA to load.
+
+        Returns:
+            The serialized BehavioralDNA dict (see
+            :func:`argus.dna.dna_to_dict`), or ``None`` if none exists.
+        """
+
+    @abstractmethod
+    def save_dna(self, user_id: str, dna: dict) -> None:
+        """Persist a BehavioralDNA dict for a user, overwriting any existing one.
+
+        Args:
+            user_id: The user the DNA belongs to.
+            dna: The serialized BehavioralDNA dict.
+        """

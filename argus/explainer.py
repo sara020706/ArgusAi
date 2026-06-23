@@ -32,13 +32,36 @@ def format_reason_line(rank: int, reason: str, points: float) -> str:
     return f"  #{rank} (+{points:.0f} pts) {reason}"
 
 
+def _contribution_points(value) -> float:
+    """Extract the numeric point value from a contribution entry.
+
+    Most contributions store a plain number, but some layers (threat intel,
+    correlation) store a ``(points, reason)`` tuple. Normalize both shapes to a
+    single float so values can be ranked together.
+
+    Args:
+        value: A contribution value — either a number or a ``(points, reason)``
+            tuple/list.
+
+    Returns:
+        The numeric points as a float (``0.0`` if it can't be interpreted).
+    """
+    if isinstance(value, (tuple, list)):
+        value = value[0] if value else 0.0
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return 0.0
+
+
 def _ranked_contributions(result: ScoreResult) -> list[tuple[str, float]]:
     """Pair each reason with its point value, ranked highest-first.
 
     The scorer already stores ``reasons`` in descending point order and stores
     every contribution value in ``rule_contributions`` / ``stat_contributions``.
     This helper re-associates each reason with its points by drawing from a
-    sorted pool of contribution values.
+    sorted pool of contribution values. Contribution values may be plain
+    numbers or ``(points, reason)`` tuples; both are handled.
 
     Args:
         result: The score result to read contributions and reasons from.
@@ -47,8 +70,11 @@ def _ranked_contributions(result: ScoreResult) -> list[tuple[str, float]]:
         A list of ``(reason, points)`` tuples in descending point order.
     """
     point_pool = sorted(
-        list(result.rule_contributions.values())
-        + list(result.stat_contributions.values()),
+        (
+            _contribution_points(v)
+            for v in list(result.rule_contributions.values())
+            + list(result.stat_contributions.values())
+        ),
         reverse=True,
     )
     paired: list[tuple[str, float]] = []

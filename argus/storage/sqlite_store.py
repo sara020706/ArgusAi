@@ -47,6 +47,14 @@ CREATE TABLE IF NOT EXISTS scored_events (
 )
 """
 
+_CREATE_DNA = """
+CREATE TABLE IF NOT EXISTS behavioral_dna (
+    user_id TEXT PRIMARY KEY,
+    dna_data TEXT,
+    updated_at TEXT
+)
+"""
+
 
 class SQLiteStore(ArgusStore):
     """A persistent :class:`ArgusStore` backed by a SQLite database file."""
@@ -66,6 +74,7 @@ class SQLiteStore(ArgusStore):
         self._conn.row_factory = sqlite3.Row
         self._conn.execute(_CREATE_PROFILES)
         self._conn.execute(_CREATE_EVENTS)
+        self._conn.execute(_CREATE_DNA)
         self._conn.commit()
 
     def get_profile(self, user_id: str) -> dict | None:
@@ -238,3 +247,26 @@ class SQLiteStore(ArgusStore):
             "alerts_today": alerts_today,
             "high_risk_users": high_risk_users,
         }
+
+    def get_dna(self, user_id: str) -> dict | None:
+        """Retrieve a user's behavioral DNA, parsing the JSON blob. See base."""
+        row = self._conn.execute(
+            "SELECT dna_data FROM behavioral_dna WHERE user_id = ?", (user_id,)
+        ).fetchone()
+        if row is None:
+            return None
+        return json.loads(row["dna_data"] or "{}")
+
+    def save_dna(self, user_id: str, dna: dict) -> None:
+        """Upsert a user's behavioral DNA as a JSON blob. See base class."""
+        self._conn.execute(
+            """
+            INSERT INTO behavioral_dna (user_id, dna_data, updated_at)
+            VALUES (?, ?, ?)
+            ON CONFLICT(user_id) DO UPDATE SET
+                dna_data = excluded.dna_data,
+                updated_at = excluded.updated_at
+            """,
+            (user_id, json.dumps(dna), dna.get("last_updated", "")),
+        )
+        self._conn.commit()

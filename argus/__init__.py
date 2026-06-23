@@ -20,6 +20,14 @@ from __future__ import annotations
 
 from argus.correlator import correlate
 from argus.detectors import IsolationForestDetector
+from argus.dna import (
+    BehavioralDNA,
+    detect_drift,
+    dna_from_dict,
+    dna_to_dict,
+    drift_to_score_bonus,
+    update_dna,
+)
 from argus.explainer import build_explanation, summarize_result
 from argus.integrations import ThreatIntelClient
 from argus.profile import UserProfile
@@ -44,6 +52,7 @@ __all__ = [
     "IsolationForestDetector",
     "ThreatIntelClient",
     "correlate",
+    "BehavioralDNA",
 ]
 
 
@@ -150,10 +159,12 @@ class ArgusEngine:
 
         # Apply optional layers on top of the base rule + statistical score
         # before persisting: ML anomaly, then IP threat intel, then multi-event
-        # correlation (which needs this event included in the window).
+        # correlation (which needs this event included in the window), then the
+        # behavioral DNA drift layer.
         self._apply_ml_layer(result)
         self._apply_threat_intel_layer(event, result)
         self._apply_correlation_layer(event, result)
+        self._apply_dna_layer(event, result)
 
         # Learn from the event, then persist updated baseline and the result.
         profile.update(event)
@@ -161,6 +172,41 @@ class ArgusEngine:
         self.store.log_event(event, result)
 
         return result
+
+    def _apply_dna_layer(self, event: Event, result: ScoreResult) -> None:
+        """Add behavioral-DNA drift points to a result, then update the DNA.
+
+        Loads (or creates) the user's :class:`~argus.dna.BehavioralDNA`,
+        detects drift *against the historical baseline before* folding in the
+        current event, applies any drift score bonus to the result, then
+        updates the fingerprint with this event and persists it.
+
+        The drift detection step never raises (see
+        :func:`~argus.dna.detect_drift`), so a malformed DNA blob cannot break
+        scoring.
+
+        Args:
+            event: The event being scored.
+            result: The :class:`ScoreResult` to augment in place.
+        """
+        stored = self.store.get_dna(event.user_id)
+        dna = dna_from_dict(stored) if stored else BehavioralDNA(event.user_id)
+
+        # Detect drift against the historical baseline *before* this event is
+        # folded in, so the current event cannot mask its own anomaly.
+        drift = detect_drift(dna)
+        points, reason = drift_to_score_bonus(drift)
+        if points > 0 and reason is not None:
+            # Store the plain point value (not a tuple) so the explainer's
+            # numeric ranking pool stays consistent with rule_contributions.
+            result.stat_contributions["behavioral_dna"] = points
+            result.reasons.append(reason)
+            result.risk_score = cap_score(result.risk_score + points)
+            result.risk_level = get_risk_level(result.risk_score)
+
+        # Fold the current event into the fingerprint and persist it.
+        update_dna(dna, event)
+        self.store.save_dna(event.user_id, dna_to_dict(dna))
 
     def _apply_threat_intel_layer(self, event: Event, result: ScoreResult) -> None:
         """Add IP-reputation threat points to a result, in place.
@@ -328,3 +374,18 @@ class ArgusEngine:
             The system stats dict (see :meth:`ArgusStore.get_stats`).
         """
         return self.store.get_stats()
+
+    def get_dna(self, user_id: str) -> BehavioralDNA | None:
+        """Load and deserialize a user's behavioral DNA fingerprint.
+
+        Args:
+            user_id: The user whose DNA to load.
+
+        Returns:
+            The :class:`~argus.dna.BehavioralDNA`, or ``None`` if the user has
+            no DNA profile yet.
+        """
+        data = self.store.get_dna(user_id)
+        if not data:
+            return None
+        return dna_from_dict(data)
