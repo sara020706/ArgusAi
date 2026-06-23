@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+:root {
+  --ground:   #F0F2F5;
+  --ground-2: #E3E6EB;
+  --surface:  #FFFFFF;
+  --text:     #0F1923;
+  --text-2:   #4A5568;
+  --text-3:   #8896A8;
+  --accent:   #E8890C;
+  --accent-2: #2563EB;
+  --risk-low:  #16A34A;
+  --risk-med:  #D97706;
+  --risk-high: #DC2626;
+  --risk-crit: #7C3AED;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'IBM Plex Sans', system-ui, sans-serif;
+  background: var(--ground);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+@keyframes row-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

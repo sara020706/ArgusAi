@@ -39,6 +39,10 @@ _smoke.py
 # Streamlit session / cache state (not the config.toml — that's intentional)
 .streamlit/secrets.toml
 
+# Website (React / Vite)
+website/node_modules/
+website/dist/
+
 # Editor / OS
 .vscode/
 .idea/
