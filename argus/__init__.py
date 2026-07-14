@@ -32,7 +32,7 @@ from argus.explainer import build_explanation, summarize_result
 from argus.integrations import ThreatIntelClient
 from argus.profile import UserProfile
 from argus.schema import Event, ScoreResult
-from argus.scorer import compute_score, get_risk_level, cap_score
+from argus.scorer import cap_score, compute_score, get_risk_level
 from argus.storage import ArgusStore, MemoryStore, SQLiteStore
 
 __version__ = "0.1.0"

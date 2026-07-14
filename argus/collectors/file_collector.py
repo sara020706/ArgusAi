@@ -24,7 +24,7 @@ from datetime import datetime
 from typing import Callable
 
 from argus.collectors.base import BaseCollector
-from argus.collectors.normalize import UNKNOWN_IP, build_event, normalize_timestamp
+from argus.collectors.normalize import build_event, normalize_timestamp
 from argus.schema import Event
 
 logger = logging.getLogger(__name__)
@@ -312,7 +312,7 @@ class FileCollector(BaseCollector):
         """
         try:
             from watchdog.events import FileSystemEventHandler  # type: ignore
-            from watchdog.observers import Observer              # type: ignore
+            from watchdog.observers import Observer  # type: ignore
         except ImportError as exc:
             raise ImportError(
                 "watchdog is required for live file monitoring. "

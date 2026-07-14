@@ -11,7 +11,6 @@ is used here — no external dependencies.
 from __future__ import annotations
 
 import logging
-import math
 import re
 from datetime import datetime
 

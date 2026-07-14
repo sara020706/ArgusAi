@@ -1,6 +1,5 @@
-import plotly.graph_objects as go
-import plotly.express as px
 import pandas as pd
+import plotly.graph_objects as go
 import streamlit as st
 
 _FONT = "JetBrains Mono, ui-monospace, monospace"
@@ -93,7 +92,7 @@ def risk_distribution_pie(alerts: list, title: str = "Alert Distribution") -> No
 
     counts = df["risk_level"].value_counts().reset_index()
     counts.columns = ["level", "count"]
-    colors = [LEVEL_COLORS.get(l, "#64748b") for l in counts["level"]]
+    colors = [LEVEL_COLORS.get(level, "#64748b") for level in counts["level"]]
     total  = counts["count"].sum()
 
     fig = go.Figure(go.Pie(
@@ -129,10 +128,10 @@ def top_users_bar(alerts: list, top_n: int = 8, title: str = "Top Users") -> Non
     risk_order = {"LOW": 0, "MEDIUM": 1, "HIGH": 2, "CRITICAL": 3}
     agg = df.groupby("user_id").agg(
         count=("user_id", "count"),
-        max_level=("risk_level", lambda x: max(x, key=lambda l: risk_order.get(l, 0))),
+        max_level=("risk_level", lambda x: max(x, key=lambda level: risk_order.get(level, 0))),
     ).reset_index().nlargest(top_n, "count")
 
-    colors = [LEVEL_COLORS.get(l, "#64748b") for l in agg["max_level"]]
+    colors = [LEVEL_COLORS.get(level, "#64748b") for level in agg["max_level"]]
 
     fig = go.Figure(go.Bar(
         x=agg["count"], y=agg["user_id"],

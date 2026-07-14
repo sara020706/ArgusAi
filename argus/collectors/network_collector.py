@@ -19,10 +19,9 @@ import logging
 import os
 import re
 from collections import defaultdict
-from datetime import datetime, timedelta
 
 from argus.collectors.base import BaseCollector
-from argus.collectors.normalize import build_event, normalize_ip, normalize_timestamp
+from argus.collectors.normalize import build_event, normalize_ip
 from argus.schema import Event
 
 logger = logging.getLogger(__name__)
