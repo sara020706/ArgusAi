@@ -10,10 +10,14 @@ import streamlit as st
 from argus.dashboard.api_client import get_alerts
 from argus.dashboard.components.risk_badge import (
     RISK_COLORS,
-    render_risk_badge,
-    level_color,
 )
-from argus.dashboard.styles import empty_state, fmt_ts, inject_global_css, render_page_header, section_label
+from argus.dashboard.styles import (
+    empty_state,
+    fmt_ts,
+    inject_global_css,
+    render_page_header,
+    section_label,
+)
 
 st.set_page_config(page_title="Threat Map — Argus AI", page_icon="⬡", layout="wide")
 inject_global_css()

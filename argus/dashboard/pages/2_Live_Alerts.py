@@ -7,7 +7,13 @@ import streamlit as st
 from argus.dashboard.api_client import get_alerts
 from argus.dashboard.components.charts import reasons_breakdown_bar
 from argus.dashboard.components.risk_badge import level_border_style, render_risk_badge
-from argus.dashboard.styles import empty_state, fmt_ts, inject_global_css, render_page_header, section_label
+from argus.dashboard.styles import (
+    empty_state,
+    fmt_ts,
+    inject_global_css,
+    render_page_header,
+    section_label,
+)
 
 st.set_page_config(page_title="Live Alerts — Argus AI", page_icon="⬡", layout="wide")
 inject_global_css()
@@ -37,7 +43,7 @@ _level_order = {"LOW": 0, "MEDIUM": 1, "HIGH": 2, "CRITICAL": 3}
 
 try:
     if selected_levels:
-        min_level = min(selected_levels, key=lambda l: _level_order.get(l, 0))
+        min_level = min(selected_levels, key=lambda level: _level_order.get(level, 0))
     else:
         min_level = "LOW"
     all_alerts = get_alerts(limit=limit, min_risk_level=min_level)

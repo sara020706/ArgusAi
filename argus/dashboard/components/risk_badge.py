@@ -1,4 +1,3 @@
-import streamlit as st
 
 RISK_COLORS = {
     "LOW":      "#4ade80",

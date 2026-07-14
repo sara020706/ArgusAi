@@ -15,7 +15,14 @@ from argus.dashboard.components.charts import (
     risk_score_timeline,
 )
 from argus.dashboard.components.risk_badge import render_risk_badge
-from argus.dashboard.styles import empty_state, fmt_ts, inject_global_css, render_kpi_row, render_page_header, section_label
+from argus.dashboard.styles import (
+    empty_state,
+    fmt_ts,
+    inject_global_css,
+    render_kpi_row,
+    render_page_header,
+    section_label,
+)
 
 st.set_page_config(page_title="User Profiles — Argus AI", page_icon="⬡", layout="wide")
 inject_global_css()

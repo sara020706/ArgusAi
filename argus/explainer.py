@@ -6,8 +6,8 @@ either a formatted multi-line report or a clean JSON-serializable summary dict.
 
 from __future__ import annotations
 
-from argus.scorer import RISK_BANDS  # noqa: F401  (kept for API discoverability)
 from argus.schema import ScoreResult
+from argus.scorer import RISK_BANDS  # noqa: F401  (kept for API discoverability)
 
 # Recommended action text keyed by risk level.
 RECOMMENDED_ACTIONS = {

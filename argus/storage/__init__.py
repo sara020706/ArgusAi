@@ -6,7 +6,7 @@ implementations: :class:`SQLiteStore` (persistent, zero-setup default) and
 """
 
 from argus.storage.base import ArgusStore
-from argus.storage.sqlite_store import SQLiteStore
 from argus.storage.memory_store import MemoryStore
+from argus.storage.sqlite_store import SQLiteStore
 
 __all__ = ["ArgusStore", "SQLiteStore", "MemoryStore"]
