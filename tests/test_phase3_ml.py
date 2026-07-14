@@ -7,6 +7,7 @@ require it are skipped automatically via the ``sklearn`` mark.
 from __future__ import annotations
 
 import os
+import random
 import tempfile
 from datetime import datetime
 
@@ -28,13 +29,18 @@ class TestSyntheticGenerator:
         """With anomaly_rate=0.1, roughly 10% of labels must be True (±5% tolerance)."""
         from argus.synthetic.generator import generate_dataset
 
-        events, labels = generate_dataset(n_users=5, days=14, anomaly_rate=0.1)
-        if not labels:
-            pytest.skip("No events generated")
-        actual_rate = sum(labels) / len(labels)
-        assert 0.05 <= actual_rate <= 0.15, (
-            f"Anomaly rate {actual_rate:.2%} outside expected 5–15% window"
-        )
+        state = random.getstate()
+        try:
+            random.seed(42)
+            events, labels = generate_dataset(n_users=5, days=14, anomaly_rate=0.1)
+            if not labels:
+                pytest.skip("No events generated")
+            actual_rate = sum(labels) / len(labels)
+            assert 0.05 <= actual_rate <= 0.15, (
+                f"Anomaly rate {actual_rate:.2%} outside expected 5–15% window"
+            )
+        finally:
+            random.setstate(state)
 
 
 class TestIsolationForestDetector:
